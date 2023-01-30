@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<title>Recommender101</title>
+
+<style>
+* {font-family:Calibri,Arial}
+.mainbox {width:80%;padding-left:20pt;padding-bottom:20pt;}
+h2 {color:#82B722;}
+a, a-visited  {color:black;}
+.tt {font-family:Courier New;font-weight:bold;font-size:11pt;}
+</style>
+</head>
+<body>
+
+<div class="mainbox">
+
+			<p><img src="rec101logo.png" alt="Recommender 101 Logo"></p>
+			<hr>
+			
+			<h2><span class="highlighted">GETTING STARTED</span></h2>
+			<p>
+			Version: 2015-12-09
+			</p>
+
+			<p>
+			Recommender101 is a lightweight and easy-to-use framework written in Java to carry out offline experiments for Recommender Systems (RS). It provides the user with various metrics and common evaluation strategies as well as some example recommenders and a dataset. The framework is easily extensible and allows the user to implement own recommenders and metrics.
+			</p>
+			<p>
+			<i>Implemented algorithms</i>: Nearest neighbors (kNN), SlopeOne, matrix factorization methods, BPR, content-based filtering
+			</p>
+			<p>
+			<i>Evaluation techniques</i>: Cross-validation; metrics include Precision, Recall, NDCG, MAE, RMSE, AUC, Gini index and others
+			</p>
+
+			<h2>Download</h2>
+			<p>
+			<a href="https://github.com/lukaslerche/recommender101/releases/download/v0.61/recommender101-v0.61.zip">Recommender101 v0.61</a>
+			</p>
+			
+			
+
+			<h2 id="toc">Table of contents</h2>
+			<a href="#downloading">Downloading Recommender101</a><br/>
+			<a href="#running">Running first experiments</a><br/>
+			<a href="#configuring">Configuring more experiments</a><br/>
+			<a href="#frameworkstructure">Framework structure</a><br/>
+			<a href="#implementingnewmetrics">Implementing additional metrics</a><br/>
+			<a href="#implementingnewalgorithms">Implementing additional algorithms</a><br/>
+			<a href="#processingdatasets">Processing data sets</a><br/>
+			<a href="#feedback">Feedback and contact</a><br/>
+
+
+			<h2 id="downloading">Downloading Recommender101</h2>
+				<p>
+				Recommender101 can be downloaded from this site and freely used for non-commercial purposes. After unpacking the downloaded archive, you can start exploring the source code which is provided as an Eclipse project. To import the project into Eclipse click on <span class="tt">File->Import->General->Existing Projects into Workspace</span> and select the unpacked folder as the root directory. Be sure to have at least Java 1.7 installed.
+				</p>
+			
+			
+			<h2 id="running"> Running experiments <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2> 
+				<p>
+				To run the experiments with the recommenders, metrics and dataset defined in the configuration file, execute the <span class="tt">main()</span> method of <span class="tt">Recommender101.java</span> in the package <span class="tt">org.recommender101</span>. To do that in Eclipse, locate the <span class="tt">recommender101-core</span> project in the Project Explorer and navigate to <span class="tt">src/org.recommender101</span>. Right-click on <span class="tt">Recommender101.java</span> and select <span class="tt">Run As->Java Application</span>. In the Java console you can see various debug outputs.
+				</p>
+				<p>
+				Right after starting the experiments, Recommender101 loads and processes the dataset from the <span class="tt">data</span> directory and returns its basic statistics, such as the number of users, items and ratings, as well as sparsity, and some averages and frequencies. After that, Recommender101 calculates the defined metrics for the given recommenders and returns the results. As a default, Recommender101 will download the <span class="tt">MovieLens100k</span> data set from <a href="http://www.grouplens.org/node/73">http://www.grouplens.org/node/73</a> in the background and run a test experiment, which will take up to a few minutes to complete. Be sure to have an online connection for the first execution of Recommender101, otherwise the demo data set cannot be downloaded. Since the downloaded data set will be stored inside the Recommender101 project, you only need the internet connection for the first run.
+				</p>
+				<p>
+				Additionally, if you want to try the content-based recommender, there is content for the <span class="tt">MovieLens</span> data set available. Please run <span class="tt">MovieLens10MDataPreparator</span> beforehand, to unpack and prepare the content information.
+				</p>
+			
+			
+			<h2 id="configuring">Configuring more experiments <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				To change the evaluated recommenders, metrics and the dataset as well as some other options used when executing <span class="tt">Recommender101.java</span>, open the configuration file <span class="tt">recommender101.properties</span> in the <span class="tt">conf</span> folder of the project. Here you can find all the relevant parameters together with a documentation on how to set them. By default there are already some typical recommenders and metrics chosen, as well as the dataset <span class="tt">MovieLens100k</span>.
+				</p>
+				<p>
+				As an example, let's examine the default configuration on Recommender101. Some parameters take a string or an integer as a value which is quite straightforward whereas others take the path to a class. Some parameters can have multiple values separated by a comma. If the value of the parameter is the path to a class, you can add additional arguments that are separated from the classpath by a colon. To pass multiple arguments to the classpath, you can use a vertical bar. The following parameters are important for Recommender101 to work and should give an idea on how to configure your experiment. The example values are taken from the default configuration file:
+				</p>
+
+				<p>
+				<ul>
+					<li><span class="tt">DataLoaderClass=org.recommender101.data.DefaultDataLoader:filename=data/movielens/ratings.txt</span> is the (class) path to the class that parses your test set (which is likely to be a textual formal) into a <span class="tt">DataModel</span>. Additionally there is an argument that specifies the (file system) path to the test set file. If you do not specify the parameter <span class="tt">DataModelClass</span>, the standard <span class="tt">DataModel</span> will be used by default.</li>
+					<li><span class="tt">DataSplitterClass=org.recommender101.data.DefaultDataSplitter:nbFolds=5</span> is the path to the class that splits your parsed test set for cross validation. The argument is the number of splits. If you do not specify the parameter <span class="tt">EvaluationType</span>, cross validation will be used by default.</li>
+					<li><span class="tt">AlgorithmClasses=org.recommender101.recommender.extensions.funksvd.FunkSVDRecommender:numFeatures=50|initialSteps=50</span> are the classes with the recommenders you want to run the experiment on. As you can see in the example the <span class="tt">FunkSVDRecommender</span> has two arguments that can be set.</li>
+					<li><span class="tt">Metrics=org.recommender101.eval.metrics.Precision:topN=10|targetSet=allrelevantintestset</span> are the classes that implement the metrics you want to measure in the experiment. Again there can be additional arguments like <span class="tt">topN</span> and <span class="tt">targetSet</span> for <span class="tt">Precision</span>.</li>
+				</ul>
+				</p>
+
+				<p>
+				As you can see in the configuration file you can of course specify multiple recommenders and metrics for one experiment. There are also some global parameters that can be modified:
+				</p>
+				
+				<p>
+				<ul>
+					<li><span class="tt">GlobalSettings.minRating</span> and <span class="tt">GlobalSettings.maxRating</span> sets the scale for the ratings.</li>
+					<li><span class="tt">GlobalSettings.listMetricsRelevanceMinRating</span> and <span class="tt">GlobalSettings.listMetricsRelevanceMinPercentageAboveAverage</span> define which ratings are considered hits and whether those hits are relative per use or not.</li>
+					<li><span class="tt">GlobalSettings.numOfThreads</span> is used for systems with multiple CPUs to enable parallel processing.</li>
+				</ul>
+				</p>				
+			
+			
+			<h2 id="frameworkstructure">Framework structure <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				Recommender101 is structured as follows: On the highest level there are four directories. The folder <span class="tt">conf</span> contains the main configuration file of Recommender101. In this file all configuration parameters are stored. It is used by default and can be edited to the users needs. However it is also possible to use an external configuration file given as a parameter to <span class="tt">Recommender101.java</span>.
+				</p>
+				<p>
+				The folder <span class="tt">data</span> stores binary files that are processed by Recommender101. You should use it to hold your test data. Initially this folder is empty but Recommender101 provides a class to acquire sample data from the MovieLens dataset (<span class="tt">MovieLens100k</span>).
+				</p>
+				<p>
+				The folder <span class="tt">lib</span> is used to store external libraries. If your own recommenders and metrics rely on specific libraries, you should store them in this directory.
+				</p>
+				<p>
+				The folder <span class="tt">src</span> contains the implementation of Recommender101. Its package <span class="tt">org.recommender101</span> is structured as follows:
+				</p>
+				
+				<p>
+				<table>
+					<tr>
+						<th>Package</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td><span class="tt">data</span></td>
+						<td>Classes and interfaces to load test data</td>
+					</tr>
+					<tr>
+						<td><span class="tt">data.extensions</span></td>
+						<td>Extensions for more complex datasets</td>
+					</tr>
+					<tr>
+						<td><span class="tt">eval.impl</span></td>
+						<td>Central classes of Recommender101</td>
+					</tr>
+					<tr>
+						<td><span class="tt">eval.interfaces</span></td>
+						<td>Interfaces that metrics need to implement</td>
+					</tr>
+					<tr>
+						<td><span class="tt">eval.metrics</span></td>
+						<td>Basic metrics to evaluate experiments</td>
+					</tr>
+					<tr>
+						<td><span class="tt">eval.metrics.extensions</span></td>
+						<td>Additional metrics</td>
+					</tr>
+					<tr>
+						<td><span class="tt">recommender</span></td>
+						<td>Interfaces that recommenders need to implement</td>
+					</tr>
+					<tr>
+						<td><span class="tt">recommender.baseline</span></td>
+						<td>Example implementations of recommenders</td>
+					</tr>
+					<tr>
+						<td><span class="tt">recommender.extensions</span></td>
+						<td>More complex recommender implementations</td>
+					</tr>
+					<tr>
+						<td><span class="tt">tools</span></td>
+						<td>Helper classes for various things</td>
+					</tr>
+					<tr>
+						<td><span class="tt">Recommender101.java</span></td>
+						<td>Starting class to execute Recommender101</td>
+					</tr>					
+				</table>
+				</p>
+				<p>
+				The following image shows the basic structure of the most important classes, associations and dependencies (click to enlarge):
+				</p>
+				<p><a href="overview.png"><img src="overview.png" alt="Recommender101 overview" style="width: 50%;"></a></p>
+				<p>
+				If you take a closer look at <span class="tt">Recommender101.java</span>, you can see that the following actions take place when executing it: At first it is checked whether an external configuration file is passed as an argument or not and loaded if applicable. After that the sample data from the MovieLens dataset is downloaded and placed in the <span class="tt">data</span>-folder if needed. Then an object of the type <span class="tt">Recommender101Impl</span> is instantiated and given the configuration. With its methods <span class="tt">runExperiments()</span> and <span class="tt">getLastResults()</span> the experiments are calculated and retrieved. Finally the method <span class="tt">printSortedEvaluationResults()</span> outputs the results.
+				</p>
+				<p>
+				As you can see <span class="tt">Recommender101Impl</span> is the central class of an experiment in Recommender101. It wraps settings, dataset, metrics and recommenders. You can either call it via executing <span class="tt">Recommender101.java</span> or use the helper methods in <span class="tt">Recommender101.java</span> to access it from an external program. Metrics and algorithms are bundled in instances of <span class="tt">Experiment</span> which can be processed simultaneously by the <span class="tt">ExperimentWorker</span>.
+				</p>
+			
+			
+			<h2 id="implementingnewalgorithms"> Implementing additional algorithms <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				The package <span class="tt">org.recommender101.recommender</span> contains the implementation of various common recommenders. In <span class="tt">baseline</span> you can find baseline recommendation methods as well as more complex recommenders in <span class="tt">extensions</span>. All recommenders inherit from the abstract class <span class="tt">AbstractRecommender</span>.
+				</p>
+				<p>
+				To create your own recommender, start by creating a new class in the <span class="tt">extensions</span> directory that inherits from <span class="tt">AbstractRecommender</span>. As you can see, there are three methods that need to be implemented:
+				</p>
+				
+				<p>
+				<ul>
+					<li><span class="tt">float predictRating(int user, int item)</span> predicts the rating for a pair of user and item. The parameters are passed as integer values originating from the experiments <span class="tt">DataModel</span>. More on this later.</li>
+					<li><span class="tt">List&lt;Integer&gt; recommendItems(int user)</span> generates a ranked list of recommendations for a given user.</li>
+					<li><span class="tt">void init()</span> is called by the instantiating class after object creation and is used to set up the recommender if there is initialization to be done.</li>
+				</ul>
+				</p>
+				
+				<p>
+				This is the bare minimum that the recommender needs. A good example to look at is the <span class="tt">PopularityAndAverage</span> baseline recommender. You also might take a look at the method <span class="tt">recommendItemsByRatingPrediction(int user)</span> of the class <span class="tt">AbstractRecommender</span> which you might need to overwrite in case your own recommender cannot make rating predictions or you want to include a better heuristic.
+				</p>
+			
+			
+			<h2 id="implementingnewmetrics">Implementing additional metrics <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				A metric in Recommender101 is always based on the class <span class="tt">Evaluator</span> found in <span class="tt">org.recommender101.eval.interfaces</span>. There are two types of metrics currently available in Recommender101: <span class="tt">PredictionEvaluator</span> and <span class="tt">RecommendationlistEvaluator</span>. Both these classes inherit from <span class="tt">Evaluator</span> and every metric should inherit from either of them. <span class="tt">PredictionEvaluator</span> metrics measure the quality of rating predictions. Typical examples include the MAE or the RMSE. <span class="tt">RecommendationlistEvaluator</span> metrics evaluate the quality of a whole list (e.g., Precision, Recall,...).
+				</p>
+				<p>
+				For a <span class="tt">PredictionEvaluator</span> there are two methods that you need to implement. The first one, <span class="tt">addTestPrediction(Rating r, float prediction)</span>, is called for every rating and its prediction by the recommender. You should calculate the value of the metric incrementally at these calls and store the value within the metric's class since it is only instanced once per experiment. Finally, to retrieve the metric's value there is the method <span class="tt">getPredictionAccuracy()</span>. There is also an <span class="tt">initialize()</span> method that you may want to overwrite. Take a look at <span class="tt">RMSE.java</span> for an example.
+				</p>
+				<p>
+				A <span class="tt">RecommendationlistEvaluator</span> again needs two methods to be implemented. <span class="tt">addRecommendations(Integer user, List&lt;Integer&gt; list)</span> is called for every user and his list of recommended items. As with <span class="tt">PredictionEvaluator</span> you calculate and store the value of the metric incrementally within the class. For the output <span class="tt">getEvaluationResult()</span> is called and if you need initialization you can overwrite <span class="tt">initialize()</span>. A short example can be found in <span class="tt">UserCoverage.java</span> with a longer one being <span class="tt">Recall.java</span>.
+				</p>
+			
+			
+			<h2 id="processingdatasets"> Processing datasets <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				A dataset, which is typically a text file, must be processed to be used by Recommender101. The format for data handled by Recommender101 is defined in the classes <span class="tt">DataModel</span> and <span class="tt">Rating</span> and processed by the classes <span class="tt">DataSplitter</span> and <span class="tt">DefaultDataLoader</span> found in the package <span class="tt">org.recommender101.data</span>. As you can see by looking into <span class="tt">DataModel.java</span>, data is managed with a couple of sets and maps. To add additional information to the data, the map <span class="tt">extraInformation</span> can be used. Also check out <span class="tt">Rating.java</span> to see how ratings are stored within <span class="tt">DataModel</span>.
+				</p>
+				<p>
+				To split a <span class="tt">DataModel</span> for cross validation, the <span class="tt">DataSplitter</span> should be used. To do that you need to implement the method <span class="tt">splitData(DataModel dataModel)</span> which splits the <span class="tt">DataModel</span> into a number of sets of ratings. A basic implementation <span class="tt">DefaultDataSplitter</span> that works with simple datasets is available in the package.
+				</p>
+				<p>
+				Finally, to create a <span class="tt">DataModel</span> you need to create a <span class="tt">DataLoader</span> that parses your dataset into a <span class="tt">DataModel</span>. You need to implement the method <span class="tt">loadData(DataModel dm)</span> that reads your text file(s) and fills the <span class="tt">DataModel</span>. For the MovieLens dataset the basic <span class="tt">DefaultDataLoader</span> is available. Take a look at it to see how to fill the <span class="tt">DataModel</span> with information.
+				</p>
+			
+
+			<h2 id="feedback"> Feedback <a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+				Feedback of any type is highly appreciated. Please send your comments or questions to <a href="mailto:recommender101@ls13.cs.tu-dortmund.de">the Recommender101 developer team</a>.
+				</p>
+			<h2 id="citation"> Reference<a href="#top" style="font-size:9pt;color:grey;">Back to top</a></h2>
+				<p>
+					When referring to Recommender101, please use the following bibliography entry:
+				</p>
+				<p>
+				D. Jannach, L. Lerche, F. Gedikli, G. Bonnin: What recommenders recommend - An analysis of accuracy, popularity, and sales diversity effects, 21st International Conference on User 
+				Modeling, Adaptation and Personalization (UMAP 2013), Rome, Italy, 2013.
+				</p>
+				<p>
+					<pre>
+@INPROCEEDINGS{JannachUMAP2013,
+  AUTHOR =       {D. Jannach and L. Lerche and F. Gedikli and G. Bonnin},
+  TITLE =        {What recommenders recommend - An analysis of accuracy, popularity, and sales diversity effects},
+  BOOKTITLE =    {Proc. 21st International Conference on User Modeling, Adaptation and Personalization (UMAP 2013)},
+  YEAR =         {2013},
+  address =      {Rome, Italy}
+}
+					</pre>
+
+				</p>
+        	
+</div>        	
+			<!-- ***** /Footer ***** -->
+	
+
+		
+</body>
+</html>
